@@ -546,7 +546,17 @@ public final class ParserAndTranslator {
      TJ.output.printSymbol(NTargumentList);
      TJ.output.incTreeDepth();
 
-     /* ???????? */
+     accept(LPAREN);
+
+     if (getCurrentToken() != RPAREN) {
+       expr3();
+       while (getCurrentToken() == COMMA) {
+         nextToken();
+         expr3();
+       }
+     }
+
+     accept(RPAREN);
 
      TJ.output.decTreeDepth();
   }
@@ -590,7 +600,11 @@ public final class ParserAndTranslator {
     TJ.output.printSymbol(NTwhileStmt);
     TJ.output.incTreeDepth();
 
-    /* ???????? */
+    accept(WHILE);
+    accept(LPAREN);
+    expr7();
+    accept(RPAREN);
+    statement();
 
     TJ.output.decTreeDepth();
   }
@@ -607,11 +621,23 @@ public final class ParserAndTranslator {
 
     switch (getCurrentToken()) {
 
-      /* ????????
+      case PRINT:   
+      nextToken();
+      accept(LPAREN);
+      printArgument();
+      accept(RPAREN);
+      accept(SEMICOLON);
+      break;
+case PRINTLN: 
+      nextToken();
+      accept(LPAREN);
+      if (getCurrentToken() != RPAREN) { printArgument(); }
+      accept(RPAREN);
+      accept(SEMICOLON);
+      break;
 
-      default: throw new SourceFileErrorException("print() or println() expected, not "
-                              + getCurrentToken().symbolRepresentationForOutputFile);
-      */
+default: throw new SourceFileErrorException("print() or println() expected, not "
+                + getCurrentToken().symbolRepresentationForOutputFile);
 
     }
 
@@ -624,7 +650,11 @@ public final class ParserAndTranslator {
     TJ.output.printSymbol(NTprintArgument);
     TJ.output.incTreeDepth();
 
-    /* ???????? */
+    if (getCurrentToken() == CHARSTRING) { 
+      nextToken(); 
+    }else {
+       expr3(); 
+      }
 
     TJ.output.decTreeDepth();
   }
@@ -635,7 +665,12 @@ public final class ParserAndTranslator {
     TJ.output.printSymbol(NTexpr7);
     TJ.output.incTreeDepth();
 
-    /* ???????? */
+    expr6();
+
+    while (getCurrentToken() == OR) {
+      nextToken();
+      expr6();
+    }
 
     TJ.output.decTreeDepth();
   }
@@ -646,7 +681,12 @@ public final class ParserAndTranslator {
     TJ.output.printSymbol(NTexpr6);
     TJ.output.incTreeDepth();
 
-    /* ???????? */
+    expr5();
+
+    while (getCurrentToken() == AND) {
+      nextToken();
+      expr5();
+    }
 
     TJ.output.decTreeDepth();
   }
@@ -657,7 +697,12 @@ public final class ParserAndTranslator {
     TJ.output.printSymbol(NTexpr5);
     TJ.output.incTreeDepth();
 
-    /* ???????? */
+    expr4();
+
+    while (getCurrentToken() == EQ || getCurrentToken() == NE) {
+      nextToken();
+      expr4();
+    }
 
     TJ.output.decTreeDepth();
   }
@@ -668,7 +713,17 @@ public final class ParserAndTranslator {
     TJ.output.printSymbol(NTexpr4);
     TJ.output.incTreeDepth();
 
-    /* ???????? */
+    expr3();
+
+    switch (getCurrentToken()) {
+    case GT:
+    case LT:
+    case GE:
+    case LE: nextToken();
+             expr3();
+             break;
+    default: break;
+    }
 
     TJ.output.decTreeDepth();
   }
@@ -679,7 +734,12 @@ public final class ParserAndTranslator {
     TJ.output.printSymbol(NTexpr3);
     TJ.output.incTreeDepth();
 
-    /* ???????? */
+    expr2();
+
+    while (getCurrentToken() == PLUS || getCurrentToken() == MINUS) {
+      nextToken();
+      expr2();
+    }
 
     TJ.output.decTreeDepth();
   }
@@ -720,7 +780,33 @@ public final class ParserAndTranslator {
 
     switch (getCurrentToken()) {
 
-      /* ???????? */
+      case LPAREN:      
+        nextToken();
+        expr7();
+        accept(RPAREN);
+        break;
+    case PLUS:        
+        nextToken();
+        expr1();
+        break;
+    case MINUS:       
+        nextToken();
+        expr1();
+        break;
+    case NOT:         
+        nextToken();
+        expr1();
+        break;
+    case UNSIGNEDINT:
+    
+    case NEW:         
+        nextToken();
+        accept(INT);
+        accept(LBRACKET);
+        expr3();
+        accept(RBRACKET);
+        while (getCurrentToken() == LBRACKET) { nextToken(); accept(RBRACKET); }
+        break;
 
       case IDENT:
         String identName = LexicalAnalyzer.getCurrentSpelling();
